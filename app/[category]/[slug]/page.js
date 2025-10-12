@@ -3,7 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { getPostBySlugAndCategory, urlFor } from "@/lib/sanity";
 import { PortableText } from "@portabletext/react";
-import ViewsCounter from "@/components/ViewsCounter";
+import ViewsCounter from "../../../components/ViewsCounter";
 
 export const dynamic = "force-dynamic";
 
