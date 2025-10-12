@@ -53,16 +53,16 @@ const portableTextComponents = {
       <strong className="font-bold text-gray-900">{children}</strong>
     ),
     em: ({ children }) => <em className="italic">{children}</em>,
-    link: ({ value, children }) => (
-      
-        href={value.href}
-        className="text-blue-600 hover:text-blue-800 underline font-medium"
-        target="_blank"
-        rel="noopener noreferrer"
-      >
-        {children}
-      </a>
-    ),
+ link: ({ value, children }) => (
+  
+    href={value.href}
+    className="text-blue-600 hover:text-blue-800 underline font-medium"
+    target="_blank"
+    rel="noopener noreferrer"
+  >
+    {children}
+  </a>
+),
   },
   types: {
     image: ({ value }) => (
