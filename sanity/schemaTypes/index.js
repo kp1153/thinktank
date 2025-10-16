@@ -56,12 +56,6 @@ export const schema = {
           description:
             "Select parent category (leave empty for top-level categories)",
         },
-        {
-          name: "description",
-          title: "Description",
-          type: "text",
-          rows: 3,
-        },
       ],
       preview: {
         select: {
