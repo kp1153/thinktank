@@ -1,4 +1,5 @@
-// schemas/index.js
+// sanity/schemaTypes/index.js
+
 export const schema = {
   types: [
     // Category Schema
@@ -23,15 +24,17 @@ export const schema = {
             maxLength: 96,
             slugify: (input) => {
               const categoryMap = {
-                "Culture & Tourism": "culture-tourism",
-                "Language & Literature": "language-literature",
+                Tourism: "tourism",
+                Culture: "culture",
+                Language: "language",
+                Literature: "literature",
                 Education: "education",
                 Economy: "economy",
                 Politics: "politics",
-                Interviews: "interviews",
-                Research: "research",
                 Events: "events",
+                Research: "research",
                 Media: "media",
+                Interviews: "interviews",
               };
               if (categoryMap[input]) return categoryMap[input];
               return input
@@ -46,6 +49,14 @@ export const schema = {
           validation: (Rule) => Rule.required().error("Slug is required"),
         },
         {
+          name: "parent",
+          title: "Parent Category",
+          type: "reference",
+          to: [{ type: "category" }],
+          description:
+            "Select parent category (leave empty for top-level categories)",
+        },
+        {
           name: "description",
           title: "Description",
           type: "text",
@@ -56,6 +67,14 @@ export const schema = {
         select: {
           title: "name",
           subtitle: "slug.current",
+          parent: "parent.name",
+        },
+        prepare(selection) {
+          const { title, subtitle, parent } = selection;
+          return {
+            title,
+            subtitle: parent ? `${parent} > ${subtitle}` : subtitle,
+          };
         },
       },
     },
@@ -121,6 +140,8 @@ export const schema = {
           type: "reference",
           to: [{ type: "category" }],
           validation: (Rule) => Rule.required().error("Category is required"),
+          description:
+            "Select a child category (not parent categories like Tourism, Events, Media)",
         },
         {
           name: "views",

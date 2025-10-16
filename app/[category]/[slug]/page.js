@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
-import { getPostBySlugAndCategory, urlFor } from "@/lib/sanity";
+import { getPostBySlugAndCategory, urlFor, getCategories } from "@/lib/sanity";
 import { PortableText } from "@portabletext/react";
 import ViewsCounter from "../../../components/ViewsCounter";
 
@@ -90,17 +90,11 @@ export default async function NewsPage({ params }) {
   const safeCategory = decodeURIComponent(category);
   const safeSlug = decodeURIComponent(slug);
 
-  const validCategories = [
-    "culture-tourism",
-    "language-literature",
-    "education",
-    "economy",
-    "politics",
-    "interviews",
-    "research",
-    "events",
-    "media",
-  ];
+  // Get all categories and extract valid child categories
+  const allCategories = await getCategories();
+  const validCategories = allCategories
+    .filter((cat) => cat.parent !== null && cat.parent !== undefined)
+    .map((cat) => cat.slug.current);
 
   if (!validCategories.includes(safeCategory)) {
     notFound();

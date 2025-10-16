@@ -1,5 +1,4 @@
-// app/[category]/page.js
-import { getPostsByCategory } from "@/lib/sanity";
+import { getPostsByCategory, getCategories } from "@/lib/sanity";
 import Link from "next/link";
 import Image from "next/image";
 
@@ -9,18 +8,11 @@ export default async function CategoryPage({ params }) {
   const { category } = await params;
   const safeCategory = decodeURIComponent(category);
 
-  // Validate category
-  const validCategories = [
-    "culture-tourism",
-    "language-literature",
-    "education",
-    "economy",
-    "politics",
-    "interviews",
-    "research",
-    "events",
-    "media",
-  ];
+  // Get all categories and extract valid child categories
+  const allCategories = await getCategories();
+  const validCategories = allCategories
+    .filter((cat) => cat.parent !== null && cat.parent !== undefined)
+    .map((cat) => cat.slug.current);
 
   if (!validCategories.includes(safeCategory)) {
     return (
