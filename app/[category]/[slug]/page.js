@@ -54,7 +54,7 @@ const portableTextComponents = {
     ),
     em: ({ children }) => <em className="italic">{children}</em>,
     link: ({ value, children }) => (
-      <a
+      
         href={value.href}
         className="text-blue-600 hover:text-blue-800 underline font-medium"
         target="_blank"
@@ -81,6 +81,80 @@ const portableTextComponents = {
         )}
       </div>
     ),
+    cloudinaryImage: ({ value }) => (
+      <div className="my-8 flex flex-col items-center">
+        <Image
+          src={value.url}
+          alt={value.caption || "Article image"}
+          width={1200}
+          height={800}
+          className="object-contain rounded-lg shadow max-h-[70vh] w-auto bg-gray-100"
+        />
+        {value.caption && (
+          <p className="text-sm text-gray-600 text-center mt-2 italic w-full">
+            {value.caption}
+          </p>
+        )}
+      </div>
+    ),
+    gallery: ({ value }) => (
+      <div className="my-8">
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+          {value.images?.map((img, index) => (
+            <div key={index} className="relative aspect-square overflow-hidden rounded-lg shadow hover:shadow-xl transition-shadow">
+              <Image
+                src={img.url}
+                alt={img.alt || `Gallery image ${index + 1}`}
+                fill
+                className="object-cover"
+              />
+            </div>
+          ))}
+        </div>
+      </div>
+    ),
+    youtube: ({ value }) => {
+      const getYouTubeEmbedUrl = (url) => {
+        if (!url) return null;
+        
+        // Extract video ID from various YouTube URL formats
+        const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+        const match = url.match(regExp);
+        const videoId = match && match[2].length === 11 ? match[2] : null;
+        
+        return videoId ? `https://www.youtube.com/embed/${videoId}` : null;
+      };
+
+      const embedUrl = getYouTubeEmbedUrl(value.url);
+
+      if (!embedUrl) return null;
+
+      return (
+        <div className="my-8">
+          <div className="relative w-full" style={{ paddingBottom: '56.25%' }}>
+            <iframe
+              className="absolute top-0 left-0 w-full h-full rounded-lg shadow-lg"
+              src={embedUrl}
+              title="YouTube video player"
+              frameBorder="0"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+            />
+          </div>
+          {value.caption && (
+            <p className="text-sm text-gray-600 text-center mt-3 italic">
+              {value.caption}
+            </p>
+          )}
+        </div>
+      );
+    },
+    break: ({ value }) => {
+      if (value.style === 'line') {
+        return <hr className="my-8 border-t-2 border-gray-300" />;
+      }
+      return <div className="my-12" />;
+    },
   },
 };
 

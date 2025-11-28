@@ -1,19 +1,206 @@
 // sanity/schemaTypes/index.js
 
+import MultiImageInput from "./MultiImageInput";
+import CloudinaryImageInput from "./CloudinaryImageInput";
+
+function hindiToRoman(input) {
+  if (!input) return "";
+
+  const consonants = {
+    क: "k",
+    ख: "kh",
+    ग: "g",
+    घ: "gh",
+    ङ: "ng",
+    च: "ch",
+    छ: "chh",
+    ज: "j",
+    झ: "jh",
+    ञ: "ny",
+    ट: "t",
+    ठ: "th",
+    ड: "d",
+    ढ: "dh",
+    ण: "n",
+    त: "t",
+    थ: "th",
+    द: "d",
+    ध: "dh",
+    न: "n",
+    प: "p",
+    फ: "ph",
+    ब: "b",
+    भ: "bh",
+    म: "m",
+    य: "y",
+    र: "r",
+    ल: "l",
+    व: "v",
+    ळ: "l",
+    श: "sh",
+    ष: "sh",
+    स: "s",
+    ह: "h",
+    क्ष: "ksh",
+    त्र: "tr",
+    ज्ञ: "gya",
+  };
+
+  const vowels = {
+    अ: "a",
+    आ: "aa",
+    इ: "i",
+    ई: "ee",
+    उ: "u",
+    ऊ: "oo",
+    ऋ: "ri",
+    ए: "e",
+    ऐ: "ai",
+    ओ: "o",
+    औ: "au",
+  };
+
+  const matras = {
+    "ा": "aa",
+    "ि": "i",
+    "ी": "ee",
+    "ु": "u",
+    "ू": "oo",
+    "ृ": "ri",
+    "े": "e",
+    "ै": "ai",
+    "ो": "o",
+    "ौ": "au",
+  };
+
+  const specials = {
+    "ं": "n",
+    "ः": "h",
+    "ँ": "n",
+    "्": "",
+  };
+
+  const dict = {
+    में: "mein",
+    की: "ki",
+    का: "ka",
+    के: "ke",
+    और: "aur",
+    से: "se",
+    पर: "par",
+    है: "hai",
+    हुई: "hui",
+    हुआ: "hua",
+    को: "ko",
+    ने: "ne",
+    एक: "ek",
+    यह: "yah",
+    वह: "vah",
+    था: "tha",
+    थी: "thi",
+    हैं: "hain",
+    हो: "ho",
+    गया: "gaya",
+    गई: "gayi",
+    दिया: "diya",
+    लिया: "liya",
+  };
+
+  const cleaned = input
+    .trim()
+    .replace(/[।!?,.]/g, "")
+    .replace(/[\u0964\u0965]/g, "")
+    .replace(/\s+/g, " ");
+
+  const words = cleaned.split(" ");
+  const transliteratedWords = [];
+
+  for (let word of words) {
+    word = word.trim();
+    if (!word) continue;
+
+    const lowerWord = word.toLowerCase();
+    if (dict[lowerWord]) {
+      transliteratedWords.push(dict[lowerWord]);
+      continue;
+    }
+
+    let result = "";
+    let i = 0;
+
+    while (i < word.length) {
+      const char = word[i];
+      const nextChar = word[i + 1];
+      const twoChar = char + nextChar;
+
+      if (consonants[twoChar]) {
+        result += consonants[twoChar];
+        i += 2;
+        continue;
+      }
+
+      if (vowels[char]) {
+        result += vowels[char];
+        i++;
+        continue;
+      }
+
+      if (consonants[char]) {
+        result += consonants[char];
+
+        if (matras[nextChar]) {
+          result += matras[nextChar];
+          i += 2;
+          continue;
+        } else if (nextChar === "्") {
+          i += 2;
+          continue;
+        } else if (nextChar && !consonants[nextChar] && !vowels[nextChar]) {
+          i++;
+          continue;
+        } else {
+          result += "a";
+          i++;
+          continue;
+        }
+      }
+
+      if (specials[char] !== undefined) {
+        result += specials[char];
+        i++;
+        continue;
+      }
+
+      if (/[a-zA-Z0-9]/.test(char)) {
+        result += char.toLowerCase();
+        i++;
+        continue;
+      }
+
+      i++;
+    }
+
+    if (result) {
+      transliteratedWords.push(result);
+    }
+  }
+
+  return transliteratedWords.join("-");
+}
+
 export const schema = {
   types: [
-    // Category Schema
     {
       name: "category",
-      title: "Category",
+      title: "श्रेणी (Category)",
       type: "document",
       fields: [
         {
           name: "name",
-          title: "Category Name",
+          title: "श्रेणी का नाम",
           type: "string",
           validation: (Rule) =>
-            Rule.required().error("Category name is required"),
+            Rule.required().error("श्रेणी का नाम आवश्यक है"),
         },
         {
           name: "slug",
@@ -23,71 +210,45 @@ export const schema = {
             source: "name",
             maxLength: 96,
             slugify: (input) => {
-              const categoryMap = {
-                Tourism: "tourism",
-                Culture: "culture",
-                Language: "language",
-                Literature: "literature",
-                Education: "education",
-                Economy: "economy",
-                Politics: "politics",
-                Events: "events",
-                Research: "research",
-                Media: "media",
-                Interviews: "interviews",
-              };
-              if (categoryMap[input]) return categoryMap[input];
-              return input
-                .toLowerCase()
-                .replace(/\s+/g, "-")
-                .replace(/[^\w\-]+/g, "")
-                .replace(/\-\-+/g, "-")
-                .replace(/^-+/, "")
-                .replace(/-+$/, "");
+              const romanized = hindiToRoman(input);
+              const timePart = new Date()
+                .toISOString()
+                .replace(/[-:.TZ]/g, "")
+                .slice(0, 14);
+              return `${romanized}-${timePart}`;
             },
           },
-          validation: (Rule) => Rule.required().error("Slug is required"),
+          validation: (Rule) => Rule.required().error("Slug आवश्यक है"),
         },
         {
-          name: "parent",
-          title: "Parent Category",
-          type: "reference",
-          to: [{ type: "category" }],
-          description:
-            "Select parent category (leave empty for top-level categories)",
+          name: "description",
+          title: "विवरण",
+          type: "text",
+          rows: 3,
         },
       ],
       preview: {
         select: {
           title: "name",
           subtitle: "slug.current",
-          parent: "parent.name",
-        },
-        prepare(selection) {
-          const { title, subtitle, parent } = selection;
-          return {
-            title,
-            subtitle: parent ? `${parent} > ${subtitle}` : subtitle,
-          };
         },
       },
     },
 
-    // Post Schema
     {
       name: "post",
-      title: "Post",
+      title: "समाचार (Post)",
       type: "document",
       fields: [
         {
           name: "title",
-          title: "Title",
+          title: "शीर्षक",
           type: "string",
           validation: (Rule) =>
             Rule.required()
               .min(10)
               .max(200)
-              .error("Title must be between 10-200 characters"),
+              .error("शीर्षक 10-200 अक्षरों के बीच होना चाहिए"),
         },
         {
           name: "slug",
@@ -96,46 +257,57 @@ export const schema = {
           options: {
             source: "title",
             maxLength: 96,
+            slugify: (input) => {
+              const romanized = hindiToRoman(input);
+              const timePart = new Date()
+                .toISOString()
+                .replace(/[-:.TZ]/g, "")
+                .slice(0, 14);
+              return `${romanized}-${timePart}`;
+            },
           },
-          validation: (Rule) => Rule.required().error("URL Slug is required"),
+          validation: (Rule) => Rule.required().error("URL Slug आवश्यक है"),
         },
         {
           name: "content",
-          title: "Content",
+          title: "सामग्री",
           type: "blockContent",
-          validation: (Rule) => Rule.required().error("Content is required"),
+          validation: (Rule) => Rule.required().error("सामग्री आवश्यक है"),
         },
         {
           name: "mainImage",
-          title: "Main Image",
-          type: "image",
-          options: {
-            hotspot: true,
+          title: "मुख्य तस्वीर (Cloudinary URL)",
+          type: "string",
+          components: {
+            input: CloudinaryImageInput,
           },
-          fields: [
-            {
-              name: "caption",
-              title: "Caption",
-              type: "string",
-            },
-          ],
+        },
+        {
+          name: "mainImageCaption",
+          title: "मुख्य तस्वीर कैप्शन",
+          type: "string",
         },
         {
           name: "publishedAt",
-          title: "Published Date",
+          title: "प्रकाशन तारीख",
           type: "datetime",
           initialValue: () => new Date().toISOString(),
           validation: (Rule) =>
-            Rule.required().error("Published date is required"),
+            Rule.required().error("प्रकाशन तारीख आवश्यक है"),
         },
         {
           name: "category",
-          title: "Category",
+          title: "श्रेणी",
           type: "reference",
           to: [{ type: "category" }],
-          validation: (Rule) => Rule.required().error("Category is required"),
-          description:
-            "Select a child category (not parent categories like Tourism, Events, Media)",
+          validation: (Rule) =>
+            Rule.required().error("श्रेणी का चुनाव आवश्यक है"),
+        },
+        {
+          name: "videoLink",
+          title: "वीडियो लिंक",
+          type: "url",
+          validation: (Rule) => Rule.uri({ scheme: ["http", "https"] }),
         },
         {
           name: "views",
@@ -147,12 +319,12 @@ export const schema = {
       ],
       orderings: [
         {
-          title: "Published Date (Newest First)",
+          title: "प्रकाशन तारीख के अनुसार (नया पहले)",
           name: "publishedAtDesc",
           by: [{ field: "publishedAt", direction: "desc" }],
         },
         {
-          title: "Title",
+          title: "शीर्षक के अनुसार",
           name: "titleAsc",
           by: [{ field: "title", direction: "asc" }],
         },
@@ -165,20 +337,18 @@ export const schema = {
           publishedAt: "publishedAt",
         },
         prepare(selection) {
-          const { title, media, category, publishedAt } = selection;
+          const { title, category, publishedAt } = selection;
           const formattedDate = publishedAt
-            ? new Date(publishedAt).toLocaleDateString("en-IN")
-            : "No date";
+            ? new Date(publishedAt).toLocaleDateString("hi-IN")
+            : "तारीख नहीं";
           return {
             title,
-            media,
-            subtitle: `${category || "No category"} • ${formattedDate}`,
+            subtitle: `${category || "बिना श्रेणी"} • ${formattedDate}`,
           };
         },
       },
     },
 
-    // Block Content Schema
     {
       name: "blockContent",
       title: "Block Content",
@@ -188,25 +358,26 @@ export const schema = {
           title: "Block",
           type: "block",
           styles: [
-            { title: "Normal", value: "normal" },
-            { title: "Heading 1", value: "h1" },
-            { title: "Heading 2", value: "h2" },
-            { title: "Heading 3", value: "h3" },
-            { title: "Quote", value: "blockquote" },
+            { title: "सामान्य", value: "normal" },
+            { title: "शीर्षक 1", value: "h1" },
+            { title: "शीर्षक 2", value: "h2" },
+            { title: "शीर्षक 3", value: "h3" },
+            { title: "उद्धरण", value: "blockquote" },
           ],
           lists: [
-            { title: "Bullet", value: "bullet" },
-            { title: "Numbered", value: "number" },
+            { title: "बुलेट पॉइंट", value: "bullet" },
+            { title: "संख्या सूची", value: "number" },
           ],
           marks: {
             decorators: [
-              { title: "Bold", value: "strong" },
-              { title: "Italic", value: "em" },
-              { title: "Underline", value: "underline" },
+              { title: "मोटा (Bold)", value: "strong" },
+              { title: "तिरछा (Italic)", value: "em" },
+              { title: "अंडरलाइन", value: "underline" },
+              { title: "पिंक", value: "pink" },
             ],
             annotations: [
               {
-                title: "Link",
+                title: "लिंक",
                 name: "link",
                 type: "object",
                 fields: [
@@ -220,7 +391,7 @@ export const schema = {
                       }),
                   },
                   {
-                    title: "Open in new window",
+                    title: "नई विंडो में खोलें",
                     name: "blank",
                     type: "boolean",
                     initialValue: false,
@@ -231,12 +402,72 @@ export const schema = {
           },
         },
         {
-          type: "image",
-          title: "Image",
-          options: {
-            hotspot: true,
-          },
+          type: "object",
+          name: "cloudinaryImage",
+          title: "तस्वीर (Cloudinary)",
           fields: [
+            {
+              name: "url",
+              title: "Image URL",
+              type: "string",
+              components: {
+                input: CloudinaryImageInput,
+              },
+            },
+            {
+              name: "caption",
+              title: "कैप्शन",
+              type: "string",
+            },
+          ],
+        },
+        {
+          type: "object",
+          name: "gallery",
+          title: "फोटो गैलरी",
+          fields: [
+            {
+              name: "images",
+              title: "तस्वीरें",
+              type: "array",
+              of: [
+                {
+                  type: "object",
+                  name: "galleryImage",
+                  fields: [
+                    {
+                      name: "url",
+                      title: "Image URL",
+                      type: "string",
+                    },
+                    {
+                      name: "alt",
+                      title: "Alt Text",
+                      type: "string",
+                    },
+                  ],
+                },
+              ],
+              components: {
+                input: MultiImageInput,
+              },
+              validation: (Rule) =>
+                Rule.min(1).error("कम से कम एक तस्वीर जोड़ें"),
+            },
+          ],
+        },
+        {
+          type: "object",
+          name: "youtube",
+          title: "YouTube Video",
+          fields: [
+            {
+              name: "url",
+              title: "YouTube URL",
+              type: "url",
+              validation: (Rule) =>
+                Rule.required().uri({ scheme: ["http", "https"] }),
+            },
             {
               name: "caption",
               title: "Caption",
@@ -247,14 +478,12 @@ export const schema = {
         {
           type: "object",
           name: "break",
-          title: "Page Break",
+          title: "पेज ब्रेक",
           fields: [
             {
               name: "style",
               type: "string",
-              options: {
-                list: ["break", "line"],
-              },
+              options: { list: ["break", "line"] },
             },
           ],
         },
