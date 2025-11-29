@@ -8,11 +8,9 @@ export default async function CategoryPage({ params }) {
   const { category } = params;
   const safeCategory = decodeURIComponent(category);
 
-  // Get all categories and extract valid child categories
+  // ⬇⬇ यहीं असली fix किया गया है — अब सभी categories valid
   const allCategories = await getCategories();
-  const validCategories = allCategories
-    .filter((cat) => cat.parent !== null && cat.parent !== undefined)
-    .map((cat) => cat.slug.current);
+  const validCategories = allCategories.map((cat) => cat.slug.current);
 
   if (!validCategories.includes(safeCategory)) {
     return (
@@ -46,14 +44,12 @@ export default async function CategoryPage({ params }) {
   if (!posts || posts.length === 0) {
     return (
       <main className="max-w-6xl mx-auto px-4 py-8">
-        <div className="mb-6">
-          <Link
-            href="/"
-            className="text-blue-600 hover:text-blue-800 font-medium hover:underline mb-2 inline-block"
-          >
-            ← Back
-          </Link>
-        </div>
+        <Link
+          href="/"
+          className="text-blue-600 hover:text-blue-800 font-medium hover:underline mb-2 inline-block"
+        >
+          ← Back
+        </Link>
         <h1 className="text-4xl font-bold mb-6 text-gray-900 capitalize">
           {safeCategory.replace(/-/g, " ")}
         </h1>
@@ -71,14 +67,12 @@ export default async function CategoryPage({ params }) {
 
   return (
     <main className="max-w-6xl mx-auto px-4 py-8">
-      <div className="mb-6">
-        <Link
-          href="/"
-          className="text-blue-600 hover:text-blue-800 font-medium hover:underline mb-2 inline-block"
-        >
-          ← Back
-        </Link>
-      </div>
+      <Link
+        href="/"
+        className="text-blue-600 hover:text-blue-800 font-medium hover:underline mb-6 inline-block"
+      >
+        ← Back
+      </Link>
 
       <h1 className="text-4xl font-bold mb-8 text-gray-900 capitalize">
         {safeCategory.replace(/-/g, " ")}
@@ -88,22 +82,20 @@ export default async function CategoryPage({ params }) {
         {posts.map((post) => (
           <article
             key={post._id}
-            className="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-100 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1"
+            className="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-100 hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
           >
             {post.mainImageUrl && (
-              <div className="w-full flex justify-center bg-gray-100">
-                <Image
-                  src={post.mainImageUrl}
-                  alt={post.mainImageAlt || post.title}
-                  width={800}
-                  height={600}
-                  className="object-contain w-auto max-h-52 rounded-t-xl"
-                />
-              </div>
+              <Image
+                src={post.mainImageUrl}
+                alt={post.mainImageAlt || post.title}
+                width={800}
+                height={600}
+                className="object-contain w-full max-h-52 bg-gray-100"
+              />
             )}
 
             <div className="p-6">
-              <div className="flex items-center justify-between mb-3">
+              <div className="flex justify-between mb-3">
                 <span className="text-xs bg-blue-600 text-white px-3 py-1 rounded-full font-semibold capitalize">
                   {post.category?.name || "General"}
                 </span>
@@ -115,7 +107,7 @@ export default async function CategoryPage({ params }) {
               <h2 className="text-xl font-bold mb-4 text-gray-900 leading-tight">
                 <Link
                   href={`/${safeCategory}/${post.slug.current}`}
-                  className="hover:underline hover:text-blue-700 transition-colors"
+                  className="hover:underline hover:text-blue-700"
                 >
                   {post.title}
                 </Link>
@@ -123,22 +115,9 @@ export default async function CategoryPage({ params }) {
 
               <Link
                 href={`/${safeCategory}/${post.slug.current}`}
-                className="inline-flex items-center text-blue-600 hover:text-blue-800 font-semibold text-sm hover:underline transition-colors"
+                className="inline-flex items-center text-blue-600 hover:text-blue-800 font-semibold text-sm hover:underline"
               >
-                Read More
-                <svg
-                  className="w-4 h-4 ml-1"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M9 5l7 7-7 7"
-                  />
-                </svg>
+                Read More →
               </Link>
             </div>
           </article>
