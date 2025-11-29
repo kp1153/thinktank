@@ -66,7 +66,7 @@ const portableTextComponents = {
     link: ({ value, children }) => {
       const href = value?.href || "#";
       return (
-        
+        <a
           href={href}
           className="text-blue-600 hover:text-blue-800 underline font-medium"
           target="_blank"
@@ -137,7 +137,7 @@ const portableTextComponents = {
 };
 
 export default async function NewsPage({ params }) {
-  const { category, slug } = await params;
+  const { category, slug } = params;
   const safeCategory = decodeURIComponent(category);
   const safeSlug = decodeURIComponent(slug);
 
@@ -219,7 +219,9 @@ export default async function NewsPage({ params }) {
               <div className="relative w-full pt-[56.25%] bg-black rounded-lg overflow-hidden">
                 <iframe
                   className="absolute top-0 left-0 w-full h-full"
-                  src={`https://www.youtube.com/embed/${getYouTubeId(post.videoLink)}`}
+                  src={`https://www.youtube.com/embed/${getYouTubeId(
+                    post.videoLink
+                  )}`}
                   title="Video"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                   allowFullScreen
