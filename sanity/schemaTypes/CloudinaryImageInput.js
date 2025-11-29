@@ -19,11 +19,11 @@ export default function CloudinaryImageInput(props) {
       try {
         const formData = new FormData();
         formData.append("file", file);
-        formData.append("upload_preset", "kashmir");
+        formData.append("upload_preset", "saurabh");
         formData.append("folder", "sanity-images");
 
         const response = await fetch(
-          `https://api.cloudinary.com/v1_1/diielqcd8/image/upload`,
+          `https://api.cloudinary.com/v1_1/dcthwjkh2/image/upload`,
           {
             method: "POST",
             body: formData,
@@ -37,7 +37,7 @@ export default function CloudinaryImageInput(props) {
         const data = await response.json();
         onChange(set(data.secure_url));
       } catch (err) {
-        setError("अपलोड विफल रहा। पुनः प्रयास करें।");
+        setError("Upload failed. Please try again.");
         console.error("Cloudinary upload error:", err);
       } finally {
         setUploading(false);
@@ -72,7 +72,7 @@ export default function CloudinaryImageInput(props) {
               <Button
                 as="label"
                 mode="ghost"
-                text="नई तस्वीर चुनें"
+                text="Choose New Image"
                 tone="primary"
                 disabled={uploading}
                 style={{ flex: 1 }}
@@ -87,7 +87,7 @@ export default function CloudinaryImageInput(props) {
               </Button>
               <Button
                 mode="ghost"
-                text="डिलीट करें"
+                text="Delete"
                 tone="critical"
                 icon={TrashIcon}
                 onClick={handleDelete}
@@ -102,7 +102,7 @@ export default function CloudinaryImageInput(props) {
         <Button
           as="label"
           mode="ghost"
-          text={uploading ? "अपलोड हो रहा है..." : "तस्वीर चुनें"}
+          text={uploading ? "Uploading..." : "Choose Image"}
           tone="primary"
           disabled={uploading}
         >
@@ -120,7 +120,7 @@ export default function CloudinaryImageInput(props) {
         <Card padding={3} radius={2} shadow={1}>
           <Stack space={2}>
             <Spinner />
-            <Text size={1}>Cloudinary पर अपलोड हो रहा है...</Text>
+            <Text size={1}>Uploading to Cloudinary...</Text>
           </Stack>
         </Card>
       )}
