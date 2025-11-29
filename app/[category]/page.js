@@ -5,7 +5,7 @@ import Image from "next/image";
 export const dynamic = "force-dynamic";
 
 export default async function CategoryPage({ params }) {
-  const { category } = await params;
+  const { category } = params;
   const safeCategory = decodeURIComponent(category);
 
   // Get all categories and extract valid child categories
@@ -90,10 +90,10 @@ export default async function CategoryPage({ params }) {
             key={post._id}
             className="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-100 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1"
           >
-            {post.mainImage && (
+            {post.mainImageUrl && (
               <div className="w-full flex justify-center bg-gray-100">
                 <Image
-                  src={post.mainImage}
+                  src={post.mainImageUrl}
                   alt={post.mainImageAlt || post.title}
                   width={800}
                   height={600}

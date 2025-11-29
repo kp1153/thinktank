@@ -13,7 +13,7 @@ export default async function Page() {
     return (
       <div className="max-w-6xl mx-auto px-4 py-8">
         <div className="text-center py-12">
-          <p className="text-lg text-gray-600">कोई पोस्ट उपलब्ध नहीं है।</p>
+          <p className="text-lg text-gray-600">No posts available</p>
         </div>
       </div>
     );
@@ -22,7 +22,7 @@ export default async function Page() {
   const formatDate = (dateString) => {
     if (!dateString) return "";
     const date = new Date(dateString);
-    return date.toLocaleDateString("hi-IN", {
+    return date.toLocaleDateString("en-IN", {
       day: "numeric",
       month: "long",
       year: "numeric",
@@ -32,17 +32,19 @@ export default async function Page() {
   // Category colors mapping
   const getCategoryColor = (categorySlug) => {
     const colors = {
-      "desh-videsh": "bg-red-500",
-      "krishi-maveshi": "bg-green-500",
-      pratirodh: "bg-orange-500",
-      "kala-sahitya": "bg-purple-500",
-      "jeevan-ke-rang": "bg-pink-500",
-      "industrial-area": "bg-blue-500",
+      culture: "bg-purple-500",
+      language: "bg-pink-500",
+      literature: "bg-indigo-500",
+      education: "bg-blue-500",
+      economy: "bg-orange-500",
+      politics: "bg-red-500",
+      research: "bg-teal-500",
+      interviews: "bg-cyan-500",
     };
     return colors[categorySlug] || "bg-blue-600";
   };
 
-  // Featured post (pehli post)
+  // Featured post (first post)
   const featuredPost = posts[0];
 
   // Medium posts (next 3 posts)
@@ -80,10 +82,10 @@ export default async function Page() {
         {featuredPost && (
           <div className="mb-8">
             <article className="bg-white rounded-lg shadow-lg overflow-hidden">
-              {featuredPost.mainImage ? (
+              {featuredPost.mainImageUrl ? (
                 <div className="h-96 relative bg-gray-100">
                   <Image
-                    src={featuredPost.mainImage}
+                    src={featuredPost.mainImageUrl}
                     alt={featuredPost.mainImageAlt || featuredPost.title}
                     fill
                     className="object-cover"
@@ -100,14 +102,16 @@ export default async function Page() {
                       featuredPost.category?.slug
                   )} text-white px-3 py-1 rounded text-sm`}
                 >
-                  {featuredPost.category?.name || "सामान्य"}
+                  {featuredPost.category?.name || "General"}
                 </span>
                 <h2 className="text-4xl font-bold mt-4 mb-3">
                   {featuredPost.title}
                 </h2>
-                <p className="text-gray-600 text-lg mb-4">
-                  {featuredPost.title}
-                </p>
+                {featuredPost.excerpt && (
+                  <p className="text-gray-600 text-lg mb-4">
+                    {featuredPost.excerpt}
+                  </p>
+                )}
                 <div className="flex justify-between items-center">
                   <span className="text-sm text-gray-500">
                     {formatDate(featuredPost.publishedAt)}
@@ -119,7 +123,7 @@ export default async function Page() {
                     }/${featuredPost.slug?.current || featuredPost.slug}`}
                     className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700"
                   >
-                    पढ़ें →
+                    Read More →
                   </Link>
                 </div>
               </div>
@@ -142,10 +146,10 @@ export default async function Page() {
                   className="bg-white rounded-lg shadow hover:shadow-lg transition p-6"
                 >
                   <div className="flex gap-4">
-                    {post.mainImage ? (
+                    {post.mainImageUrl ? (
                       <div className="w-48 h-32 relative rounded flex-shrink-0 bg-gray-100">
                         <Image
-                          src={post.mainImage}
+                          src={post.mainImageUrl}
                           alt={post.mainImageAlt || post.title}
                           fill
                           className="object-cover rounded"
@@ -160,7 +164,7 @@ export default async function Page() {
                           categorySlug
                         )} text-white px-2 py-1 rounded text-xs`}
                       >
-                        {post.category?.name || "सामान्य"}
+                        {post.category?.name || "General"}
                       </span>
                       <h3 className="text-xl font-bold mt-2 mb-2">
                         <Link
@@ -170,9 +174,11 @@ export default async function Page() {
                           {post.title}
                         </Link>
                       </h3>
-                      <p className="text-gray-600 text-sm mb-2 line-clamp-2">
-                        {post.title}
-                      </p>
+                      {post.excerpt && (
+                        <p className="text-gray-600 text-sm mb-2 line-clamp-2">
+                          {post.excerpt}
+                        </p>
+                      )}
                       <span className="text-xs text-gray-500">
                         {formatDate(post.publishedAt)}
                       </span>
@@ -188,7 +194,7 @@ export default async function Page() {
             {/* Popular Posts */}
             <div className="bg-white rounded-lg shadow p-6">
               <h3 className="text-xl font-bold mb-4 border-b pb-2">
-                लोकप्रिय पोस्ट
+                Popular Posts
               </h3>
               <div className="space-y-4">
                 {popularPosts.map((post, index) => {
@@ -222,7 +228,7 @@ export default async function Page() {
             {/* Categories */}
             <div className="bg-white rounded-lg shadow p-6">
               <h3 className="text-xl font-bold mb-4 border-b pb-2">
-                श्रेणियाँ
+                Categories
               </h3>
               <div className="space-y-2">
                 {categoriesData.map((cat) => (
