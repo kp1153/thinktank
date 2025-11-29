@@ -5,8 +5,13 @@ export default function Footer() {
         <div className="border-t border-gray-800 pt-8 text-center text-sm">
           <p>&copy; {new Date().getFullYear()} BK. All rights reserved.</p>
           <p className="mt-2">
-            इस वेबसाइट का विकास और रखरखाव कामता प्रसाद के द्वारा: 
-            <a href="https://web-developer-kp.com" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 ml-1">
+            Developed and maintained by Kamta Prasad:
+            <a
+              href="https://web-developer-kp.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-blue-400 hover:text-blue-300 ml-1"
+            >
               https://web-developer-kp.com
             </a>
           </p>
