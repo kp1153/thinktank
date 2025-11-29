@@ -7,21 +7,22 @@ export const dynamic = "force-dynamic";
 export default async function CategoryPage({ params }) {
   const safeCategory = decodeURIComponent(params?.category);
 
-  // 🔥 All categories allowed — no parent filter, no restriction
   const allCategories = await getCategories();
 
-  // Slug mapping FIXED (core issue solved)
-  const validCategories = allCategories.map(
-    (cat) => cat?.slug?.current || cat?.slug
-  );
+  // ये line fix करो - slug.current ya slug dono check karo
+  const validCategories = allCategories
+    .map((cat) => cat?.slug?.current || cat?.slug)
+    .filter(Boolean);
 
-  // ❗ Now culture/economy/politics etc. will NOT be rejected
   if (!validCategories.includes(safeCategory)) {
     return (
       <main className="max-w-6xl mx-auto px-4 py-8 text-center">
         <h1 className="text-4xl font-bold text-red-600 mb-4">
           Invalid Category
         </h1>
+        <p className="text-gray-600 mb-4">
+          Available: {validCategories.join(", ")}
+        </p>
         <Link href="/" className="text-blue-600 underline text-lg">
           ← Back to Home
         </Link>
