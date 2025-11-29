@@ -1,13 +1,19 @@
 import { notFound } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
-import { getPostBySlugAndCategory, urlFor, getCategories } from "@/lib/sanity";
+import { getPostBySlugAndCategory } from "@/lib/sanity";
 import { PortableText } from "@portabletext/react";
 import ViewsCounter from "../../../components/ViewsCounter";
 
 export const dynamic = "force-dynamic";
 
-// Custom components for PortableText
+const getYouTubeId = (url) => {
+  if (!url) return null;
+  const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+  const match = url.match(regExp);
+  return match && match[2].length === 11 ? match[2] : null;
+};
+
 const portableTextComponents = {
   block: {
     normal: ({ children }) => (
@@ -53,126 +59,96 @@ const portableTextComponents = {
       <strong className="font-bold text-gray-900">{children}</strong>
     ),
     em: ({ children }) => <em className="italic">{children}</em>,
-    link: ({ value, children }) => (
-      <a
-        href={value?.href}
-        className="text-blue-600 hover:text-blue-800 underline font-medium"
-        target="_blank"
-        rel="noopener noreferrer"
-      >
-        {children}
-      </a>
+    underline: ({ children }) => <span className="underline">{children}</span>,
+    pink: ({ children }) => (
+      <span className="text-pink-600 font-medium">{children}</span>
     ),
+    link: ({ value, children }) => {
+      const href = value?.href || "#";
+      return (
+        
+          href={href}
+          className="text-blue-600 hover:text-blue-800 underline font-medium"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          {children}
+        </a>
+      );
+    },
   },
   types: {
-    image: ({ value }) => (
-      <div className="my-8 flex justify-center">
-        <Image
-          src={urlFor(value).width(1200).url()}
-          alt={value.alt || "Article image"}
-          width={1200}
-          height={800}
-          className="object-contain rounded-lg shadow max-h-[70vh] w-auto bg-gray-100"
-        />
-        {value.caption && (
-          <p className="text-sm text-gray-600 text-center mt-2 italic w-full">
-            {value.caption}
-          </p>
-        )}
-      </div>
-    ),
-    cloudinaryImage: ({ value }) => (
-      <div className="my-8 flex flex-col items-center">
-        <Image
-          src={value.url}
-          alt={value.caption || "Article image"}
-          width={1200}
-          height={800}
-          className="object-contain rounded-lg shadow max-h-[70vh] w-auto bg-gray-100"
-        />
-        {value.caption && (
-          <p className="text-sm text-gray-600 text-center mt-2 italic w-full">
-            {value.caption}
-          </p>
-        )}
-      </div>
-    ),
-    gallery: ({ value }) => (
-      <div className="my-8">
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-          {value.images?.map((img, index) => (
-            <div
-              key={index}
-              className="relative aspect-square overflow-hidden rounded-lg shadow hover:shadow-xl transition-shadow"
-            >
-              <Image
-                src={img.url}
-                alt={img.alt || `Gallery image ${index + 1}`}
-                fill
-                className="object-cover"
-              />
-            </div>
-          ))}
-        </div>
-      </div>
-    ),
-    youtube: ({ value }) => {
-      const getYouTubeEmbedUrl = (url) => {
-        if (!url) return null;
-
-        // Extract video ID from various YouTube URL formats
-        const regExp =
-          /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
-        const match = url.match(regExp);
-        const videoId = match && match[2].length === 11 ? match[2] : null;
-
-        return videoId ? `https://www.youtube.com/embed/${videoId}` : null;
-      };
-
-      const embedUrl = getYouTubeEmbedUrl(value.url);
-
-      if (!embedUrl) return null;
-
+    cloudinaryImage: ({ value }) => {
+      if (!value?.url) return null;
       return (
-        <div className="my-8">
-          <div className="relative w-full" style={{ paddingBottom: "56.25%" }}>
-            <iframe
-              className="absolute top-0 left-0 w-full h-full rounded-lg shadow-lg"
-              src={embedUrl}
-              title="YouTube video player"
-              frameBorder="0"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowFullScreen
-            />
-          </div>
+        <div className="my-8 flex flex-col items-center">
+          <Image
+            src={value.url}
+            alt={value.caption || "Article image"}
+            width={1200}
+            height={800}
+            className="object-contain rounded-lg shadow max-h-[70vh] w-auto bg-gray-100"
+          />
           {value.caption && (
-            <p className="text-sm text-gray-600 text-center mt-3 italic">
+            <p className="text-sm text-gray-600 text-center mt-2 italic w-full">
               {value.caption}
             </p>
           )}
         </div>
       );
     },
-    break: ({ value }) => {
-      if (value.style === "line") {
-        return <hr className="my-8 border-t-2 border-gray-300" />;
-      }
-      return <div className="my-12" />;
+    gallery: ({ value }) => (
+      <div className="my-8 grid grid-cols-2 md:grid-cols-3 gap-4">
+        {value.images?.map((img, index) => (
+          <div key={index} className="relative aspect-square">
+            <Image
+              src={img.url}
+              alt={img.alt || `Gallery image ${index + 1}`}
+              fill
+              className="object-cover rounded-lg shadow"
+            />
+          </div>
+        ))}
+      </div>
+    ),
+    youtube: ({ value }) => {
+      const videoId = getYouTubeId(value?.url);
+      if (!videoId) return null;
+      return (
+        <div className="my-8">
+          <div className="relative w-full pt-[56.25%] bg-black rounded-lg overflow-hidden">
+            <iframe
+              className="absolute top-0 left-0 w-full h-full"
+              src={`https://www.youtube.com/embed/${videoId}?rel=0`}
+              title="YouTube video"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              allowFullScreen
+            />
+          </div>
+          {value.caption && (
+            <p className="text-sm text-gray-600 text-center mt-2 italic">
+              {value.caption}
+            </p>
+          )}
+        </div>
+      );
     },
   },
 };
 
 export default async function NewsPage({ params }) {
-  const { category, slug } = params;
-
+  const { category, slug } = await params;
   const safeCategory = decodeURIComponent(category);
   const safeSlug = decodeURIComponent(slug);
 
-  // Get all categories and extract valid child categories
-  const allCategories = await getCategories();
-  const validCategories = allCategories
-    .filter((cat) => cat.parent !== null && cat.parent !== undefined)
-    .map((cat) => cat.slug.current);
+  const validCategories = [
+    "desh-videsh",
+    "industrial-area",
+    "jeevan-ke-rang",
+    "pratirodh",
+    "kala-sahitya",
+    "krishi-maveshi",
+  ];
 
   if (!validCategories.includes(safeCategory)) {
     notFound();
@@ -200,7 +176,6 @@ export default async function NewsPage({ params }) {
   return (
     <main className="min-h-screen bg-gray-50">
       <div className="max-w-4xl mx-auto px-4 py-8">
-        {/* Date and Views */}
         <div className="flex items-center justify-end mb-6">
           <div className="flex items-center gap-4 text-sm text-gray-600">
             <span className="font-medium">{formatDate(post.publishedAt)}</span>
@@ -208,12 +183,10 @@ export default async function NewsPage({ params }) {
           </div>
         </div>
 
-        {/* Title */}
         <h1 className="text-4xl font-bold mb-8 text-gray-900 leading-tight">
           {post.title}
         </h1>
 
-        {/* Main Image */}
         {post.mainImageUrl && (
           <div className="w-full mb-8 flex justify-center">
             <Image
@@ -227,14 +200,12 @@ export default async function NewsPage({ params }) {
           </div>
         )}
 
-        {/* Image Caption */}
         {post.mainImageCaption && (
           <p className="text-center text-sm text-gray-600 mb-8 italic -mt-4">
             {post.mainImageCaption}
           </p>
         )}
 
-        {/* Content */}
         <article className="bg-white rounded-xl shadow-lg p-8 mb-8">
           <div className="prose prose-lg max-w-none">
             <PortableText
@@ -242,9 +213,22 @@ export default async function NewsPage({ params }) {
               components={portableTextComponents}
             />
           </div>
+
+          {post.videoLink && (
+            <div className="my-8">
+              <div className="relative w-full pt-[56.25%] bg-black rounded-lg overflow-hidden">
+                <iframe
+                  className="absolute top-0 left-0 w-full h-full"
+                  src={`https://www.youtube.com/embed/${getYouTubeId(post.videoLink)}`}
+                  title="Video"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                  allowFullScreen
+                />
+              </div>
+            </div>
+          )}
         </article>
 
-        {/* Back Navigation */}
         <div className="flex items-center justify-center">
           <Link
             href="/"
