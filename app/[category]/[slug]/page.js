@@ -3,7 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { getPostBySlugAndCategory } from "@/lib/sanity";
 import { PortableText } from "@portabletext/react";
-import ViewsCounter from "../../../components/ViewsCounter";
+import ViewsCounter from "@/components/ViewsCounter";
 
 export const dynamic = "force-dynamic";
 
@@ -221,9 +221,7 @@ export default async function NewsPage({ params }) {
               <div className="relative w-full pt-[56.25%] bg-black rounded-lg overflow-hidden">
                 <iframe
                   className="absolute top-0 left-0 w-full h-full"
-                  src={`https://www.youtube.com/embed/${getYouTubeId(
-                    post.videoLink
-                  )}`}
+                  src={`https://www.youtube.com/embed/${getYouTubeId(post.videoLink)}`}
                   title="Video"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                   allowFullScreen

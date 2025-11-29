@@ -9,7 +9,6 @@ export default async function CategoryPage({ params }) {
 
   const allCategories = await getCategories();
 
-  // ये line fix करो - slug.current ya slug dono check karo
   const validCategories = allCategories
     .map((cat) => cat?.slug?.current || cat?.slug)
     .filter(Boolean);
