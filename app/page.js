@@ -12,7 +12,7 @@ export default async function Page() {
     return (
       <div className="max-w-6xl mx-auto px-4 py-8">
         <div className="text-center py-12">
-          <p className="text-lg text-gray-600">कोई पोस्ट उपलब्ध नहीं है।</p>
+          <p className="text-lg text-gray-600">No posts available.</p>
         </div>
       </div>
     );
@@ -95,7 +95,7 @@ export default async function Page() {
                     featuredPost.category?.slug?.current
                   )} text-white px-3 py-1 rounded text-sm`}
                 >
-                  {featuredPost.category?.name || "सामान्य"}
+                  {featuredPost.category?.name || "General"}
                 </span>
                 <h2 className="text-4xl font-bold mt-4 mb-3">
                   {featuredPost.title}
@@ -111,7 +111,7 @@ export default async function Page() {
                     href={`/${featuredPost.category?.slug?.current}/${featuredPost.slug?.current}`}
                     className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700"
                   >
-                    पढ़ें →
+                    Read →
                   </Link>
                 </div>
               </div>
@@ -145,7 +145,7 @@ export default async function Page() {
                         post.category?.slug?.current
                       )} text-white px-2 py-1 rounded text-xs`}
                     >
-                      {post.category?.name || "सामान्य"}
+                      {post.category?.name || "General"}
                     </span>
                     <h3 className="text-xl font-bold mt-2 mb-2">
                       <Link
@@ -170,7 +170,7 @@ export default async function Page() {
           <div className="space-y-6">
             <div className="bg-white rounded-lg shadow p-6">
               <h3 className="text-xl font-bold mb-4 border-b pb-2">
-                लोकप्रिय पोस्ट
+                Popular Posts
               </h3>
               <div className="space-y-4">
                 {popularPosts.map((post, index) => (
@@ -197,7 +197,7 @@ export default async function Page() {
 
             <div className="bg-white rounded-lg shadow p-6">
               <h3 className="text-xl font-bold mb-4 border-b pb-2">
-                श्रेणियाँ
+                Categories
               </h3>
               <div className="space-y-2">
                 {categoriesData.map((cat) => (
