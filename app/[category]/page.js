@@ -1,98 +1,66 @@
-import { getPostsByCategory, getCategories } from "@/lib/sanity";
+// app/[category]/page.js
+import { getPostsByCategory } from "@/lib/sanity";
 import Link from "next/link";
 import Image from "next/image";
+import { ChevronRight } from "lucide-react";
 
 export const dynamic = "force-dynamic";
 
+const getCategoryDisplayName = (route) => {
+  const displayNames = {
+    culture: "Culture",
+    language: "Language",
+    literature: "Literature",
+    education: "Education",
+    economy: "Economy",
+    politics: "Politics",
+    research: "Research",
+    interviews: "Interviews",
+  };
+  return displayNames[route] || route;
+};
+
 export default async function CategoryPage({ params }) {
-  const safeCategory = decodeURIComponent(params?.category);
-
-  const allCategories = await getCategories();
-
-  const validCategories = allCategories
-    .map((cat) => cat?.slug?.current || cat?.slug)
-    .filter(Boolean);
-
-  if (!validCategories.includes(safeCategory)) {
-    return (
-      <main className="max-w-6xl mx-auto px-4 py-8 text-center">
-        <h1 className="text-4xl font-bold text-red-600 mb-4">
-          Invalid Category
-        </h1>
-        <p className="text-gray-600 mb-4">
-          Available: {validCategories.join(", ")}
-        </p>
-        <Link href="/" className="text-blue-600 underline text-lg">
-          ← Back to Home
-        </Link>
-      </main>
-    );
-  }
+  const { category } = await params;
+  const safeCategory = decodeURIComponent(category);
 
   const posts = await getPostsByCategory(safeCategory);
-
-  if (!posts?.length) {
-    return (
-      <main className="max-w-6xl mx-auto px-4 py-8 text-center">
-        <h1 className="text-4xl font-bold mb-6 capitalize">{safeCategory}</h1>
-        <p className="text-gray-500 text-lg">
-          No posts found in this category.
-        </p>
-      </main>
-    );
-  }
-
-  const formatDate = (date) =>
-    new Date(date).toLocaleDateString("en-IN", {
-      day: "numeric",
-      month: "long",
-      year: "numeric",
-    });
+  const categoryDisplayName = getCategoryDisplayName(safeCategory);
 
   return (
-    <main className="max-w-6xl mx-auto px-4 py-8">
-      <h1 className="text-4xl font-bold mb-8 capitalize">{safeCategory}</h1>
+    <div className="container mx-auto px-4 py-8">
+      <div className="flex items-center gap-2 text-xs uppercase font-bold text-gray-500 mb-6">
+        <Link href="/" className="hover:text-[#006680]">
+          Home
+        </Link>
+        <ChevronRight size={12} />
+        <span className="text-gray-800">{categoryDisplayName}</span>
+      </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {posts.map((post) => (
-          <article
+      <h1 className="text-4xl font-black mb-8">{categoryDisplayName}</h1>
+
+      <div className="grid gap-8 lg:grid-cols-3 md:grid-cols-2">
+        {posts?.map((post) => (
+          <Link
             key={post._id}
-            className="bg-white rounded-xl shadow hover:shadow-lg overflow-hidden transition"
+            href={`/${safeCategory}/${post.slug.current}`}
+            className="group"
           >
-            {post.mainImageUrl && (
+            <div className="relative aspect-[3/2] overflow-hidden rounded">
               <Image
-                src={post.mainImageUrl}
-                alt={post.mainImageAlt || post.title}
-                width={800}
-                height={600}
-                className="w-full object-cover h-56"
+                src={post.mainImage}
+                alt={post.title}
+                fill
+                sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                className="object-cover group-hover:scale-105 duration-500"
               />
-            )}
-
-            <div className="p-5">
-              <h2 className="text-xl font-bold mb-2 leading-tight">
-                <Link
-                  href={`/${safeCategory}/${post.slug?.current || post.slug}`}
-                  className="hover:text-blue-600"
-                >
-                  {post.title}
-                </Link>
-              </h2>
-
-              <p className="text-sm text-gray-500 mb-3">
-                {formatDate(post.publishedAt)}
-              </p>
-
-              <Link
-                href={`/${safeCategory}/${post.slug?.current || post.slug}`}
-                className="text-blue-600 font-semibold hover:underline text-sm"
-              >
-                Read More →
-              </Link>
             </div>
-          </article>
+            <h2 className="text-xl font-bold mt-3 group-hover:text-[#006680]">
+              {post.title}
+            </h2>
+          </Link>
         ))}
       </div>
-    </main>
+    </div>
   );
 }
